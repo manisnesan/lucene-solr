@@ -263,6 +263,30 @@ public class DistributedDebugComponentTest extends SolrJettyTestBase {
     verifyDebugSections(query, collection1);
     
   }
+
+  @Test
+  public void testDebugSection_fl_param() throws Exception {
+    SolrQuery query = new SolrQuery();
+    query.setQuery("*%3A*");
+    query.set("fl", "id");
+
+    query.set("shards", shard1 + "," + shard2);
+    query.set("debug", "results");
+
+    QueryResponse response = client.query(query);
+    assertNotNull(response);
+    assertNotNull(response.getDebugMap());
+    NamedList<Object> results = (NamedList<Object>) response.getDebugMap().get("results");
+    assertNotNull(results);
+
+    query.remove("debug");
+    query.set("debug", "true");
+    response = client.query(query);
+    assertNotNull(response);
+    assertNotNull(response.getDebugMap());
+    results = (NamedList<Object>) response.getDebugMap().get("results");
+    assertNotNull(results);
+  }
   
   private void verifyDebugSections(SolrQuery query, SolrClient client) throws SolrServerException, IOException {
     query.set("debugQuery", "true");
